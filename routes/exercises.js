@@ -95,6 +95,38 @@ router.delete('/custom/:userId/:exerciseId', async (req, res) => {
   }
 });
 
+// Update custom exercise for a user
+router.put('/custom/:userId/:exerciseId', async (req, res) => {
+  try {
+    const { name, type } = req.body;
+    const user = await User.findById(req.params.userId);
+    
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    // Find the custom exercise in the user's array
+    const exercise = user.custom_exercises?.find(ex => ex.exercise_id === req.params.exerciseId);
+    
+    if (!exercise) return res.status(404).json({ error: 'Custom exercise not found' });
+    
+    // Check if new name already exists in custom exercises (if name is being changed)
+    if (name && name !== exercise.name) {
+      const nameExists = user.custom_exercises.some(ex => 
+        ex.name.toLowerCase() === name.toLowerCase() && ex.exercise_id !== req.params.exerciseId
+      );
+      if (nameExists) return res.status(400).json({ error: 'Exercise name already exists in your library' });
+    }
+    
+    // Update the exercise fields
+    if (name !== undefined) exercise.name = name;
+    if (type !== undefined) exercise.type = type;
+    
+    await user.save();
+    res.json({ message: 'Custom exercise updated', exercise });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 // Delete exercise from global library
 router.delete('/:id', async (req, res) => {
   try {

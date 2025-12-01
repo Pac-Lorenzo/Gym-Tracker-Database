@@ -74,6 +74,32 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
+// Update a user (custom) template
+router.put('/custom/:userId/:templateId', async (req, res) => {
+  try {
+    const { name, exercises } = req.body;
+    const t = await Template.findById(req.params.templateId);
+    if (!t) return res.status(404).json({ error: 'Template not found' });
+
+    // Only allow updates to non-global (user) templates
+    if (t.is_global) return res.status(403).json({ error: 'Cannot modify global templates' });
+
+    // Ensure the template belongs to the provided userId
+    if (String(t.user_id) !== String(req.params.userId)) {
+      return res.status(403).json({ error: 'Template does not belong to this user' });
+    }
+
+    // Apply updates (only provided fields)
+    if (name !== undefined) t.name = name;
+    if (exercises !== undefined) t.exercises = exercises;
+
+    await t.save();
+    res.json(t);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 // Delete template
 router.delete('/:id', async (req, res) => {
   try {
