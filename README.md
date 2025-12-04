@@ -141,7 +141,7 @@ Suggested environment variables:
 - `base_url` — e.g. `http://localhost:3000/api`
 - `userId`, `exerciseId`, `workoutId`, `templateId` — placeholders you can set dynamically when running requests.
 
-https://pacochelorenzo-2563759.postman.co/workspace/Pakich17's-Workspace~c30fe611-7edf-4dc8-8219-9c70b0df83a3/collection/49808271-0570db0b-14a3-4340-b29d-c9132946871e?action=share&creator=49808271&active-environment=49808271-3ae32544-a137-4bc9-aedf-6853b01e79dd
+[https://pacochelorenzo-2563759.postman.co/workspace/Pakich17's-Workspace~c30fe611-7edf-4dc8-8219-9c70b0df83a3/collection/49808271-0570db0b-14a3-4340-b29d-c9132946871e?action=share&creator=49808271&active-environment=49808271-3ae32544-a137-4bc9-aedf-6853b01e79dd](https://pacochelorenzo-2563759.postman.co/workspace/Pakich17's-Workspace~c30fe611-7edf-4dc8-8219-9c70b0df83a3/collection/49808271-0570db0b-14a3-4340-b29d-c9132946871e?action=share&creator=49808271&active-environment=49808271-3ae32544-a137-4bc9-aedf-6853b01e79dd)
 
 ---
 
@@ -214,17 +214,19 @@ mongosh
 use gymtracker
 db.users.find()
 
-db.users.findOne({ _id: ObjectId("69260d15161bf3fb3623b819") })
+#Normal Queries:
+#Find a user with user_id
+db.users.findOne({ _id: ObjectId("YOUR_USER_ID") })
 
-
+#Update a user's weight to 190 lbs
 db.users.updateOne(
-  { _id: ObjectId("69260d15161bf3fb3623b819") },
+  { _id: ObjectId("YOUR_USER_ID") },
   { $set: { weight_lbs: 190 } }
 )
 
-		
+#Insert a workout to a provided user	
 db.workouts.insertOne({
-  user_id: ObjectId("69260d15161bf3fb3623b819"),
+  user_id: ObjectId("YOUR_USER_ID"),
   total_time_minutes: 80,
   exercises: [
     {
@@ -239,15 +241,33 @@ db.workouts.insertOne({
   ]
 })
 
-
+#View personal records
 db.personalrecords.find({
-  user_id: ObjectId("69260d15161bf3fb3623b819"),
+  user_id: ObjectId("YOUR_USER_ID"),
 })
 
+#Advanced Queries:
+#Find PRs with best_weight greater than 150
 db.personalrecords.find({
-  	user_id: ObjectId("69260d15161bf3fb3623b819"),
+  	user_id: ObjectId("YOUR_USER_ID"),
   	best_weight: { $gt: 150 }
 })
+
+#Find a workout:
+db.workouts.findOne(
+  { _id: ObjectId("YOUR_WORKOUT_ID")}
+)
+
+#Update set 1 of provided exercise within provided workout:
+db.workouts.updateOne(
+  { _id: ObjectId("YOUR_WORKOUT_ID"), "exercises.exercise_id": "YOUR_EXERCISE_ID" },
+  { $set: { "exercises.$.sets.0.weight": 220 } }
+)
+#Verify with: (set 1 of provided exercise of provided workout should now have new weight 220)
+db.workouts.findOne(
+  { _id: ObjectId("YOUR_WORKOUT_ID")}
+)
+
 
 ```
 
